@@ -2,9 +2,12 @@
 
 > Python library for controlling JURA coffee machines over Bluetooth
 
-[![Tests](https://github.com/OpenDisplay-org/py-jura/actions/workflows/test.yml/badge.svg)](https://github.com/OpenDisplay-org/py-jura/actions/workflows/test.yml)
+[![Tests](https://github.com/g4bri3lDev/py-jura/actions/workflows/test.yml/badge.svg)](https://github.com/g4bri3lDev/py-jura/actions/workflows/test.yml)
 [![PyPI](https://img.shields.io/pypi/v/py-jura)](https://pypi.org/project/py-jura/)
 [![Python Version](https://img.shields.io/pypi/pyversions/py-jura)](https://pypi.org/project/py-jura/)
+[![License](https://img.shields.io/pypi/l/py-jura)](https://github.com/g4bri3lDev/py-jura/blob/main/LICENSE)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![mypy](https://img.shields.io/badge/type--checked-mypy-blue)](https://mypy-lang.org/)
 
 Brew drinks, check machine status, read maintenance counters, and track live brew progress - all from Python, over Bluetooth, with a simple async API.
 
@@ -313,7 +316,7 @@ ARTICLE_NAMES[15234]  # "E7"
 ## Development
 
 ```bash
-git clone https://github.com/OpenDisplay-org/py-jura.git
+git clone https://github.com/g4bri3lDev/py-jura.git
 cd py-jura
 uv sync --all-extras
 

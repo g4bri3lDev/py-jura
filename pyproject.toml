@@ -40,22 +40,22 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://opendisplay.org"
-Repository = "https://github.com/OpenDisplay-org/py-jura"
-Documentation = "https://github.com/OpenDisplay-org/py-jura#readme"
+Homepage = "https://github.com/g4bri3lDev/py-jura"
+Repository = "https://github.com/g4bri3lDev/py-jura"
+Documentation = "https://github.com/g4bri3lDev/py-jura#readme"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/py_jura"]
 
 [tool.ruff]
 line-length = 120
-target-version = "py311"
+target-version = "py313"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.13"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
