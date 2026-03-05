@@ -12,7 +12,7 @@ from py_jura.machines import ARTICLE_NAMES
 from py_jura.models import Alert, BrewProgress, MachineInfo, MachineStats, MachineStatus, MaintenanceStats
 from py_jura.products import Product, Temperature
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 __all__ = [
     "JuraMachine",
