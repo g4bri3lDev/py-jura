@@ -1,0 +1,25 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.4
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.1
+    hooks:
+      - id: mypy
+        files: ^src/
+        additional_dependencies:
+          - bleak>=0.21.0
+          - bleak-retry-connector>=3.0.0
+
+  - repo: https://github.com/PyCQA/pylint
+    rev: v4.0.5
+    hooks:
+      - id: pylint
+        files: ^src/
+        additional_dependencies:
+          - bleak>=0.21.0
+          - bleak-retry-connector>=3.0.0

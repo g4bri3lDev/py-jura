@@ -23,14 +23,16 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
-# TODO: Add your runtime dependencies here
-dependencies = []
+dependencies = [
+    "bleak>=0.21.0",
+    "bleak-retry-connector>=3.0.0",
+]
 
 [project.optional-dependencies]
 test = [
     "pytest>=9.0.2",
+    "pytest-asyncio>=0.23.0",
     "pytest-cov>=7.0.0",
-    # Uncomment if using async: "pytest-asyncio>=1.3.0",
 ]
 dev = [
     "mypy>=1.19.1",
@@ -57,7 +59,32 @@ python_version = "3.11"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
+exclude = ["tests/"]
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint.design]
+max-args = 7
+max-positional-arguments = 7
+max-branches = 15
+max-attributes = 10
+
+[tool.pylint.messages_control]
+disable = [
+    "broad-exception-caught",   # intentional best-effort catches in BLE callbacks
+    "duplicate-code",           # machine definitions share structural patterns by design
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-# Uncomment if using async tests: asyncio_mode = "auto"
+asyncio_mode = "auto"
+markers = [
+    "hardware: mark test as requiring a physical JURA machine",
+]
+
+[dependency-groups]
+dev = [
+    "prek>=0.3.4",
+    "pylint>=4.0.5",
+]

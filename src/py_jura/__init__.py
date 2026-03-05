@@ -1,17 +1,33 @@
-"""py-jura.
+"""py-jura - Python library for controlling JURA coffee machines over Bluetooth."""
 
-A Python library for interacting with Jura coffee machines over Bluetooth
-"""
-
-# TODO: Import your public API here
-# Example:
-# from .core import main_function
-# from .models import MyModel
-# from .enums import MyEnum
+from py_jura.exceptions import (
+    JuraError,
+    MachineBlockedError,
+    MachineDisconnectedError,
+    MachineNotFoundError,
+    UnsupportedProductError,
+)
+from py_jura.machine import JuraMachine
+from py_jura.machines import ARTICLE_NAMES
+from py_jura.models import Alert, BrewProgress, MachineInfo, MachineStats, MachineStatus, MaintenanceStats
+from py_jura.products import Product, Temperature
 
 __version__ = "0.1.0"
 
 __all__ = [
-    # TODO: List your public API exports here
-    # Export only what users should import directly
+    "JuraMachine",
+    "ARTICLE_NAMES",
+    "Product",
+    "Temperature",
+    "MachineStatus",
+    "MachineStats",
+    "MachineInfo",
+    "MaintenanceStats",
+    "BrewProgress",
+    "Alert",
+    "JuraError",
+    "MachineBlockedError",
+    "MachineDisconnectedError",
+    "MachineNotFoundError",
+    "UnsupportedProductError",
 ]
