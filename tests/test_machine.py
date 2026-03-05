@@ -22,6 +22,7 @@ from py_jura.machine import JuraMachine, _get_stat_val
 from py_jura.machines import MACHINES
 from py_jura.models import MachineStats, MachineStatus
 from py_jura.products import Product, Temperature
+from py_jura.protocol import JURA_MANUFACTURER_ID
 
 # Key and article number from a known EF533 machine (15084 = E8)
 _KEY = 0x2A
@@ -59,7 +60,7 @@ class TestParseAdvertisement:
         raw = bytes([_KEY, 0x00, 0x00, 0x00, _ARTICLE & 0xFF, (_ARTICLE >> 8) & 0xFF])
         adv = AdvertisementData(
             local_name=None,
-            manufacturer_data={0x00AB: raw},
+            manufacturer_data={JURA_MANUFACTURER_ID: raw},
             service_data={},
             service_uuids=[],
             platform_data=(),
@@ -90,7 +91,7 @@ class TestParseAdvertisement:
 
         adv = AdvertisementData(
             local_name=None,
-            manufacturer_data={0x00AB: bytes([0x01, 0x02])},
+            manufacturer_data={JURA_MANUFACTURER_ID: bytes([0x01, 0x02])},
             service_data={},
             service_uuids=[],
             platform_data=(),
@@ -108,7 +109,7 @@ class TestParseAdvertisement:
         raw = bytes([0x5E, 0x00, 0x00, 0x00, 0x1C, 0x3B])
         adv = AdvertisementData(
             local_name=None,
-            manufacturer_data={0x00AB: raw},
+            manufacturer_data={JURA_MANUFACTURER_ID: raw},
             service_data={},
             service_uuids=[],
             platform_data=(),

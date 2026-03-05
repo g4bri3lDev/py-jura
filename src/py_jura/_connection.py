@@ -17,6 +17,7 @@ from bleak_retry_connector import establish_connection
 from py_jura.exceptions import MachineDisconnectedError, MachineNotFoundError
 from py_jura.machines import MACHINES, MachineDefinition
 from py_jura.protocol import (
+    JURA_MANUFACTURER_ID,
     P_MODE_UUID,
     build_disconnect_command,
     build_heartbeat_command,
@@ -166,11 +167,11 @@ class _JuraConnection:  # pylint: disable=too-many-instance-attributes
 
         Returns (key, article_number).
         """
-        for data in adv.manufacturer_data.values():
-            if len(data) >= 6:
-                key = data[0]
-                article_number = int.from_bytes(data[4:6], byteorder="little")
-                return key, article_number
+        data = adv.manufacturer_data.get(JURA_MANUFACTURER_ID)
+        if data is not None and len(data) >= 6:
+            key = data[0]
+            article_number = int.from_bytes(data[4:6], byteorder="little")
+            return key, article_number
 
         raise MachineNotFoundError(
             "JURA advertisement data missing or too short - could not extract encryption key and article number."

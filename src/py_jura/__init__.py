@@ -11,12 +11,14 @@ from py_jura.machine import JuraMachine
 from py_jura.machines import ARTICLE_NAMES
 from py_jura.models import Alert, BrewProgress, MachineInfo, MachineStats, MachineStatus, MaintenanceStats
 from py_jura.products import Product, Temperature
+from py_jura.protocol import JURA_MANUFACTURER_ID
 
 __version__ = "0.2.0"
 
 __all__ = [
     "JuraMachine",
     "ARTICLE_NAMES",
+    "JURA_MANUFACTURER_ID",
     "Product",
     "Temperature",
     "MachineStatus",
