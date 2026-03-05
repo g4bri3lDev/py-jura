@@ -48,6 +48,24 @@ def _make_machine(key: int = _KEY, article: int = _ARTICLE) -> JuraMachine:
     return m
 
 
+def _make_stat_data(total: int, per_product: dict) -> bytes:
+    """Build a raw (pre-encode) 3-bytes-per-slot statistics buffer."""
+    max_code = max((0, *per_product.keys()))
+    size = (max_code + 1) * 3
+    buf = bytearray(size)
+
+    def write_slot(slot: int, value: int) -> None:
+        off = slot * 3
+        buf[off] = (value >> 16) & 0xFF
+        buf[off + 1] = (value >> 8) & 0xFF
+        buf[off + 2] = value & 0xFF
+
+    write_slot(0, total)
+    for code, count in per_product.items():
+        write_slot(code, count)
+    return bytes(buf)
+
+
 # ---------------------------------------------------------------------------
 # _parse_advertisement
 # ---------------------------------------------------------------------------
@@ -411,27 +429,9 @@ class TestGetStatVal:
 
 
 class TestGetStats:
-    def _make_stat_data(self, total: int, per_product: dict) -> bytes:
-        """Build a raw (pre-encode) statistics data buffer."""
-        # Slot 0 = total, slots indexed by product code
-        max_code = max((0, *per_product.keys()))
-        size = (max_code + 1) * 3
-        buf = bytearray(size)
-
-        def write_slot(slot: int, value: int) -> None:
-            off = slot * 3
-            buf[off] = (value >> 16) & 0xFF
-            buf[off + 1] = (value >> 8) & 0xFF
-            buf[off + 2] = value & 0xFF
-
-        write_slot(0, total)
-        for code, count in per_product.items():
-            write_slot(code, count)
-        return bytes(buf)
-
     async def test_returns_machine_stats(self):
         m = _make_machine()
-        raw_data = self._make_stat_data(total=500, per_product={0x02: 42})
+        raw_data = _make_stat_data(total=500, per_product={0x02: 42})
         m._client.read_gatt_char.return_value = encdec(raw_data, _KEY)
 
         with patch.object(m, "_poll_stats_ready"):
@@ -451,7 +451,7 @@ class TestGetStats:
 
     async def test_skips_invalid_slots(self):
         m = _make_machine()
-        raw_data = self._make_stat_data(total=10, per_product={0x02: 5, 0x04: 0xFFFF})
+        raw_data = _make_stat_data(total=10, per_product={0x02: 5, 0x04: 0xFFFF})
         m._client.read_gatt_char.return_value = encdec(raw_data, _KEY)
 
         with patch.object(m, "_poll_stats_ready"):
@@ -463,7 +463,7 @@ class TestGetStats:
         from py_jura.protocol import STATISTICS_COMMAND_UUID
 
         m = _make_machine()
-        raw_data = self._make_stat_data(total=0, per_product={})
+        raw_data = _make_stat_data(total=0, per_product={})
         m._client.read_gatt_char.return_value = encdec(raw_data, _KEY)
 
         with patch.object(m, "_poll_stats_ready"):
@@ -506,27 +506,11 @@ class TestCancelBrew:
 
 
 class TestGetDailyStats:
-    def _make_stat_data(self, total: int, per_product: dict) -> bytes:
-        max_code = max((0, *per_product.keys()))
-        size = (max_code + 1) * 3
-        buf = bytearray(size)
-
-        def write_slot(slot: int, value: int) -> None:
-            off = slot * 3
-            buf[off] = (value >> 16) & 0xFF
-            buf[off + 1] = (value >> 8) & 0xFF
-            buf[off + 2] = value & 0xFF
-
-        write_slot(0, total)
-        for code, count in per_product.items():
-            write_slot(code, count)
-        return bytes(buf)
-
     async def test_returns_machine_stats(self):
         from py_jura.models import MachineStats
 
         m = _make_machine()
-        raw_data = self._make_stat_data(total=7, per_product={0x02: 3})
+        raw_data = _make_stat_data(total=7, per_product={0x02: 3})
         m._client.read_gatt_char.return_value = encdec(raw_data, _KEY)
 
         with patch.object(m, "_poll_stats_ready"):
@@ -540,7 +524,7 @@ class TestGetDailyStats:
         from py_jura.protocol import STATISTICS_COMMAND_UUID, StatMode
 
         m = _make_machine()
-        raw_data = self._make_stat_data(total=0, per_product={})
+        raw_data = _make_stat_data(total=0, per_product={})
         m._client.read_gatt_char.return_value = encdec(raw_data, _KEY)
 
         with patch.object(m, "_poll_stats_ready"):

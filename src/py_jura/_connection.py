@@ -138,11 +138,13 @@ class _JuraConnection:  # pylint: disable=too-many-instance-attributes
 
     async def _scan(self) -> tuple[BLEDevice, AdvertisementData]:
         """Scan BLE and return (BLEDevice, AdvertisementData) for our address."""
-        found: list[tuple[BLEDevice, AdvertisementData]] = []
+        found: tuple[BLEDevice, AdvertisementData] | None = None
+        target = self._address.upper()
 
         def callback(device: BLEDevice, adv: AdvertisementData) -> None:
-            if device.address.upper() == self._address.upper():
-                found.append((device, adv))
+            nonlocal found
+            if device.address.upper() == target:
+                found = (device, adv)
 
         async with BleakScanner(detection_callback=callback):
             for _ in range(100):
@@ -153,7 +155,7 @@ class _JuraConnection:  # pylint: disable=too-many-instance-attributes
         if not found:
             raise MachineNotFoundError(f"JURA machine not found at {self._address} after 10 seconds of scanning.")
 
-        return found[-1]
+        return found
 
     @staticmethod
     def _parse_advertisement(adv: AdvertisementData) -> tuple[int, int]:
@@ -185,10 +187,7 @@ class _JuraConnection:  # pylint: disable=too-many-instance-attributes
         """Send a heartbeat every 9 s to stay in BLE mode. Reconnects on a drop."""
         while True:
             try:
-                await asyncio.wait_for(
-                    asyncio.shield(asyncio.ensure_future(self._stop_heartbeat.wait())),
-                    timeout=_HEARTBEAT_INTERVAL,
-                )
+                await asyncio.wait_for(self._stop_heartbeat.wait(), timeout=_HEARTBEAT_INTERVAL)
             except asyncio.TimeoutError:
                 pass  # normal; send heartbeat
 

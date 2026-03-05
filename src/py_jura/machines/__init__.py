@@ -54,14 +54,14 @@ def _load(mod: ModuleType) -> None:
     _register(
         MachineDefinition(
             name=mod.__name__.split(".")[-1].upper(),
-            products=getattr(mod, "PRODUCTS"),
-            alerts=getattr(mod, "ALERTS"),
-            maintenance_counter_types=getattr(mod, "MAINTENANCE_COUNTER_TYPES"),
-            maintenance_percent_types=getattr(mod, "MAINTENANCE_PERCENT_TYPES"),
+            products=mod.PRODUCTS,
+            alerts=mod.ALERTS,
+            maintenance_counter_types=mod.MAINTENANCE_COUNTER_TYPES,
+            maintenance_percent_types=mod.MAINTENANCE_PERCENT_TYPES,
         ),
-        getattr(mod, "ARTICLE_NUMBERS"),
+        mod.ARTICLE_NUMBERS,
     )
-    ARTICLE_NAMES.update(getattr(mod, "ARTICLE_NAMES"))
+    ARTICLE_NAMES.update(mod.ARTICLE_NAMES)
 
 
 for _info in pkgutil.iter_modules(__path__):

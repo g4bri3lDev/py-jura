@@ -50,10 +50,7 @@ def _get_stat_val(data: bytes, offset: int, bytes_per_val: int) -> int:
     start = offset * bytes_per_val
     if len(data) < start + bytes_per_val:
         return 0
-    result = 0
-    for i in range(bytes_per_val):
-        result = (result << 8) | data[start + i]
-    return result
+    return int.from_bytes(data[start : start + bytes_per_val], byteorder="big")
 
 
 class JuraMachine(_JuraConnection):
@@ -91,8 +88,8 @@ class JuraMachine(_JuraConnection):
         machine._preset_adv = adv_data
         return machine
 
-    @staticmethod
-    def parse_advertisement(adv_data: AdvertisementData) -> int:
+    @classmethod
+    def parse_advertisement(cls, adv_data: AdvertisementData) -> int:
         """
         Parse a JURA BLE advertisement and return the article number.
 
@@ -101,7 +98,7 @@ class JuraMachine(_JuraConnection):
 
         Raises MachineNotFoundError if the advertisement data is missing or too short.
         """
-        _, article_number = _JuraConnection._parse_advertisement(adv_data)
+        _, article_number = cls._parse_advertisement(adv_data)
         return article_number
 
     # ------------------------------------------------------------------
@@ -351,6 +348,13 @@ class JuraMachine(_JuraConnection):
         """Read today's brew counts from the machine."""
         return await self._get_product_counter_stats(StatMode.DAILY_COUNTERS)
 
+    async def _fetch_stat_block(self, client: BleakClient, mode: StatMode) -> bytes:
+        """Send a statistics request and return the decoded data payload."""
+        cmd = build_stats_command(self._key, mode)
+        await client.write_gatt_char(STATISTICS_COMMAND_UUID, cmd, response=True)
+        await self._poll_stats_ready(client)
+        return encdec(bytes(await client.read_gatt_char(STATISTICS_DATA_UUID)), self._key)
+
     async def get_maintenance(self) -> MaintenanceStats:
         """
         Read maintenance counters and wear percentages from the machine.
@@ -363,27 +367,17 @@ class JuraMachine(_JuraConnection):
         """
         client, machine_def = self._require_connected()
 
-        cmd = build_stats_command(self._key, StatMode.MAINTENANCE_COUNTER)
-        await client.write_gatt_char(STATISTICS_COMMAND_UUID, cmd, response=True)
-        await self._poll_stats_ready(client)
+        counter_data = await self._fetch_stat_block(client, StatMode.MAINTENANCE_COUNTER)
+        counters = {
+            name: _get_stat_val(counter_data, offset=i, bytes_per_val=2)
+            for i, name in enumerate(machine_def.maintenance_counter_types)
+        }
 
-        raw_data = bytes(await client.read_gatt_char(STATISTICS_DATA_UUID))
-        counter_data = encdec(raw_data, self._key)
-
-        counters: dict[str, int] = {}
-        for i, name in enumerate(machine_def.maintenance_counter_types):
-            counters[name] = _get_stat_val(counter_data, offset=i, bytes_per_val=2)
-
-        cmd = build_stats_command(self._key, StatMode.MAINTENANCE_PERCENT)
-        await client.write_gatt_char(STATISTICS_COMMAND_UUID, cmd, response=True)
-        await self._poll_stats_ready(client)
-
-        raw_data = bytes(await client.read_gatt_char(STATISTICS_DATA_UUID))
-        percent_data = encdec(raw_data, self._key)
-
-        percentages: dict[str, int] = {}
-        for i, name in enumerate(machine_def.maintenance_percent_types):
-            percentages[name] = _get_stat_val(percent_data, offset=i, bytes_per_val=1)
+        percent_data = await self._fetch_stat_block(client, StatMode.MAINTENANCE_PERCENT)
+        percentages = {
+            name: _get_stat_val(percent_data, offset=i, bytes_per_val=1)
+            for i, name in enumerate(machine_def.maintenance_percent_types)
+        }
 
         return MaintenanceStats(counters=counters, percentages=percentages)
 
