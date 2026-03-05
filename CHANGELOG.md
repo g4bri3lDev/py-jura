@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/g4bri3lDev/py-jura/compare/v0.2.0...v0.2.1) (2026-03-05)
+
+
+### Bug Fixes
+
+* update jura manufacturer id ([a9a075a](https://github.com/g4bri3lDev/py-jura/commit/a9a075a2decd57f5448f183d71ea1e400c08b942))
+
 ## [0.2.0](https://github.com/g4bri3lDev/py-jura/compare/v0.1.1...v0.2.0) (2026-03-05)
 
 

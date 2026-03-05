@@ -13,7 +13,7 @@ from py_jura.models import Alert, BrewProgress, MachineInfo, MachineStats, Machi
 from py_jura.products import Product, Temperature
 from py_jura.protocol import JURA_MANUFACTURER_ID
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 __all__ = [
     "JuraMachine",
