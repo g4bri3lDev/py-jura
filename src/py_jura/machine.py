@@ -13,6 +13,8 @@ import asyncio
 import logging
 
 from bleak import BleakClient
+from bleak.backends.device import BLEDevice
+from bleak.backends.scanner import AdvertisementData
 
 from py_jura._connection import _JuraConnection
 from py_jura.encoder import encdec
@@ -70,6 +72,37 @@ class JuraMachine(_JuraConnection):
     async def __aenter__(self) -> JuraMachine:
         await self._connect()
         return self
+
+    @classmethod
+    def from_ble_device(
+        cls,
+        ble_device: BLEDevice,
+        adv_data: AdvertisementData,
+        max_retries: int = 3,
+    ) -> JuraMachine:
+        """
+        Create a JuraMachine from a BLEDevice and AdvertisementData.
+
+        Use this in Home Assistant integrations where the Bluetooth subsystem
+        provides the device and advertisement data — skips the internal BLE scan.
+        """
+        machine = cls(ble_device.address, max_retries)
+        machine._ble_device = ble_device
+        machine._preset_adv = adv_data
+        return machine
+
+    @staticmethod
+    def parse_advertisement(adv_data: AdvertisementData) -> int:
+        """
+        Parse a JURA BLE advertisement and return the article number.
+
+        Useful in Home Assistant config flows to identify a discovered device
+        and look up its model name via ARTICLE_NAMES.
+
+        Raises MachineNotFoundError if the advertisement data is missing or too short.
+        """
+        _, article_number = _JuraConnection._parse_advertisement(adv_data)
+        return article_number
 
     # ------------------------------------------------------------------
     # Identity

@@ -26,7 +26,7 @@ _LOGGER = logging.getLogger(__name__)
 _HEARTBEAT_INTERVAL = 9  # seconds between heartbeat write to P_MODE
 
 
-class _JuraConnection:
+class _JuraConnection:  # pylint: disable=too-many-instance-attributes
     """
     BLE connection lifecycle mixin for JuraMachine.
 
@@ -43,6 +43,7 @@ class _JuraConnection:
         self._machine_def: MachineDefinition | None = None
         self._client: BleakClient | None = None
         self._ble_device: BLEDevice | None = None
+        self._preset_adv: AdvertisementData | None = None
 
         self._heartbeat_task: asyncio.Task[None] | None = None
         self._stop_heartbeat = asyncio.Event()
@@ -65,10 +66,13 @@ class _JuraConnection:
 
     async def _connect(self) -> None:
         """Scan for the device, parse advertisement, establish BLE connection."""
-        _LOGGER.debug("Scanning for JURA machine at %s", self._address)
-        device, adv = await self._scan()
+        if self._ble_device is not None and self._preset_adv is not None:
+            device, adv = self._ble_device, self._preset_adv
+        else:
+            _LOGGER.debug("Scanning for JURA machine at %s", self._address)
+            device, adv = await self._scan()
+            self._ble_device = device
 
-        self._ble_device = device
         self._key, article_number = self._parse_advertisement(adv)
         self._article_number = article_number
 
