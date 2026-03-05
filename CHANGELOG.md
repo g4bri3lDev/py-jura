@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/g4bri3lDev/py-jura/compare/v0.1.1...v0.2.0) (2026-03-05)
+
+
+### Features
+
+* add methods to create JuraMachine from BLE device and parse advertisement data ([6ca3298](https://github.com/g4bri3lDev/py-jura/commit/6ca3298e6063a43a51bf65963bb6d46f9e72b640))
+
 ## [0.1.1](https://github.com/g4bri3lDev/py-jura/compare/v0.1.0...v0.1.1) (2026-03-05)
 
 
